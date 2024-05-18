@@ -133,4 +133,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         String loginKey = "login_" + username;
         return stringRedisTemplate.opsForHash().get(loginKey, token) != null;
     }
+
+    @Override
+    public void logout(String username, String token) {
+        if (hasLogged(username, token)) {
+            String loginKey = "login_" + username;
+            stringRedisTemplate.delete(loginKey);
+        } else {
+            throw new ClientException("用户未登录或登录已过期");
+        }
+    }
 }
