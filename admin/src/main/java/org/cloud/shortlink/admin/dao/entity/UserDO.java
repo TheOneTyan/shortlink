@@ -62,5 +62,6 @@ public class UserDO {
      * 删除标识 0：未删除 1：已删除
      */
     @TableField(fill = FieldFill.INSERT)
+//    @TableLogic(value = "0", delval = "1")
     private int delFlag;
 }

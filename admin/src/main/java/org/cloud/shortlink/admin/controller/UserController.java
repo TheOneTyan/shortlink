@@ -3,9 +3,11 @@ package org.cloud.shortlink.admin.controller;
 import lombok.RequiredArgsConstructor;
 import org.cloud.shortlink.admin.convention.result.Result;
 import org.cloud.shortlink.admin.convention.result.Results;
+import org.cloud.shortlink.admin.dto.req.UserLoginReqDTO;
 import org.cloud.shortlink.admin.dto.req.UserRegisterReqDTO;
 import org.cloud.shortlink.admin.dto.req.UserUpdateReqDTO;
 import org.cloud.shortlink.admin.dto.resp.UserDesensitizedRespDTO;
+import org.cloud.shortlink.admin.dto.resp.UserLoginRespDTO;
 import org.cloud.shortlink.admin.dto.resp.UserSensitiveRespDTO;
 import org.cloud.shortlink.admin.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -59,5 +61,15 @@ public class UserController {
     public Result<Void> update(@RequestBody UserUpdateReqDTO requestParam) {
         userService.update(requestParam);
         return Results.success();
+    }
+
+    @PostMapping("/api/short-link/v1/user/login")
+    public Result<UserLoginRespDTO> login(@RequestBody UserLoginReqDTO requestParam) {
+        return Results.success(userService.login(requestParam));
+    }
+
+    @GetMapping("/api/short-link/v1/user/has-logged")
+    public Result<Boolean> hasLogged(@RequestParam(name = "username") String username, @RequestParam(name = "token") String token) {
+        return Results.success(userService.hasLogged(username, token));
     }
 }
