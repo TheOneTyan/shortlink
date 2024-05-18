@@ -2,6 +2,7 @@ package org.cloud.shortlink.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.cloud.shortlink.admin.convention.exception.ClientException;
 import org.cloud.shortlink.admin.dao.entity.UserDO;
 import org.cloud.shortlink.admin.dao.mapper.UserMapper;
 import org.cloud.shortlink.admin.dto.req.UserRegisterReqDTO;
+import org.cloud.shortlink.admin.dto.req.UserUpdateReqDTO;
 import org.cloud.shortlink.admin.dto.resp.UserDesensitizedRespDTO;
 import org.cloud.shortlink.admin.dto.resp.UserSensitiveRespDTO;
 import org.cloud.shortlink.admin.service.UserService;
@@ -74,5 +76,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public void update(UserUpdateReqDTO requestParam) {
+        LambdaUpdateWrapper<UserDO> wrapper = Wrappers.lambdaUpdate(UserDO.class)
+                .eq(UserDO::getUsername, requestParam.getUsername());
+        baseMapper.update(BeanUtil.toBean(requestParam, UserDO.class), wrapper);
     }
 }

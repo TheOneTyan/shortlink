@@ -3,6 +3,7 @@ package org.cloud.shortlink.admin.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.cloud.shortlink.admin.dao.entity.UserDO;
 import org.cloud.shortlink.admin.dto.req.UserRegisterReqDTO;
+import org.cloud.shortlink.admin.dto.req.UserUpdateReqDTO;
 import org.cloud.shortlink.admin.dto.resp.UserDesensitizedRespDTO;
 import org.cloud.shortlink.admin.dto.resp.UserSensitiveRespDTO;
 
@@ -15,4 +16,6 @@ public interface UserService extends IService<UserDO> {
     Boolean availableUsername(String username);
 
     void register(UserRegisterReqDTO requestParam);
+
+    void update(UserUpdateReqDTO requestParam);
 }
