@@ -8,7 +8,7 @@ import org.cloud.shortlink.admin.convention.serialize.PhoneDesensitizationSerial
  * 用户返回参数响应
  */
 @Data
-public class UserRespDTO {
+public class UserDesensitizedRespDTO {
     /**
      * id
      */
