@@ -1,6 +1,8 @@
 package org.cloud.shortlink.admin.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.cloud.shortlink.admin.convention.result.Result;
+import org.cloud.shortlink.admin.convention.result.Results;
 import org.cloud.shortlink.admin.dto.resp.UserDesensitizedRespDTO;
 import org.cloud.shortlink.admin.dto.resp.UserSensitiveRespDTO;
 import org.cloud.shortlink.admin.service.UserService;
@@ -18,14 +20,12 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/api/short-link/v1/user/desensitized/{username}")
-    public UserDesensitizedRespDTO getDesensitizedUserByUsername(@PathVariable(name = "username") String username) {
-        return userService.getDesensitizedUserByUsername(username);
+    public Result<UserDesensitizedRespDTO> getDesensitizedUserByUsername(@PathVariable(name = "username") String username) {
+        return Results.success(userService.getDesensitizedUserByUsername(username));
     }
 
     @GetMapping("/api/short-link/v1/user/sensitive/{username}")
-    public UserSensitiveRespDTO getSensitiveUserByUsername(@PathVariable(name = "username") String username) {
-        return userService.getSensitiveUserByUsername(username);
+    public Result<UserSensitiveRespDTO> getSensitiveUserByUsername(@PathVariable(name = "username") String username) {
+        return Results.success(userService.getSensitiveUserByUsername(username));
     }
-
-
 }
