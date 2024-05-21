@@ -1,12 +1,14 @@
 package org.cloud.shortlink.admin.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.cloud.shortlink.admin.common.database.BaseDO;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("t_group")
-public class GroupDO {
+public class GroupDO extends BaseDO {
     /**
      * id
      */
@@ -27,25 +29,9 @@ public class GroupDO {
      */
     private String username;
 
-//    /**
-//     * 分组排序
-//     */
-//    private Integer sortOrder;
-//
-//    /**
-//     * 创建时间
-//     */
-//    private Date createTime;
-//
-//    /**
-//     * 修改时间
-//     */
-//    private Date updateTime;
-
     /**
-     * 删除标识 0：未删除 1：已删除
+     * 分组排序
      */
-    @TableLogic(value = "0", delval = "1")
-    private int delFlag;
+    private Integer sortOrder;
 }
 
