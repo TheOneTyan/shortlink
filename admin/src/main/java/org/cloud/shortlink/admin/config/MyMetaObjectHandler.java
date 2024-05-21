@@ -13,6 +13,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         this.strictInsertFill(metaObject, "createTime", Date::new, Date.class);
         this.strictInsertFill(metaObject, "updateTime", Date::new, Date.class);
         this.strictInsertFill(metaObject, "delFlag", () -> 0, Integer.class);
+        this.strictInsertFill(metaObject, "sortOrder", () -> 0, Integer.class);
     }
 
     @Override

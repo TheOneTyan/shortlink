@@ -1,12 +1,16 @@
 package org.cloud.shortlink.admin.dao.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.cloud.shortlink.admin.common.database.BaseDO;
 
-@Data
 @EqualsAndHashCode(callSuper = true)
+@Data
+@Builder
 @TableName("t_group")
 public class GroupDO extends BaseDO {
     /**
@@ -32,6 +36,7 @@ public class GroupDO extends BaseDO {
     /**
      * 分组排序
      */
+    @TableField(fill = FieldFill.INSERT)
     private Integer sortOrder;
 }
 
