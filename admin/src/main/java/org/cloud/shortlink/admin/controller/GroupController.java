@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.cloud.shortlink.admin.convention.result.Result;
 import org.cloud.shortlink.admin.convention.result.Results;
 import org.cloud.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
+import org.cloud.shortlink.admin.dto.req.ShortLinkGroupSortReqDTO;
 import org.cloud.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import org.cloud.shortlink.admin.dto.resp.ShortLinkGroupListRespDTO;
 import org.cloud.shortlink.admin.service.GroupService;
@@ -39,6 +40,12 @@ public class GroupController {
     @DeleteMapping("/api/short-link/v1/group")
     public Result<Void> delete(@RequestParam String gid){
         groupService.deleteGroup(gid);
+        return Results.success();
+    }
+
+    @PostMapping("/api/short-link/v1/group/sort")
+    public Result<Void> sortGroup(@RequestBody List<ShortLinkGroupSortReqDTO> requestParam){
+        groupService.sortGroup(requestParam);
         return Results.success();
     }
 }

@@ -10,6 +10,7 @@ import org.cloud.shortlink.admin.common.biz.user.UserContext;
 import org.cloud.shortlink.admin.dao.entity.GroupDO;
 import org.cloud.shortlink.admin.dao.mapper.GroupMapper;
 import org.cloud.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
+import org.cloud.shortlink.admin.dto.req.ShortLinkGroupSortReqDTO;
 import org.cloud.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
 import org.cloud.shortlink.admin.dto.resp.ShortLinkGroupListRespDTO;
 import org.cloud.shortlink.admin.service.GroupService;
@@ -62,6 +63,15 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .eq(GroupDO::getGid, gid)
                 .eq(GroupDO::getUsername, UserContext.getUsername());
         baseMapper.delete(deleteWrapper);
+    }
+
+    public void sortGroup(List<ShortLinkGroupSortReqDTO> requestParam) {
+        requestParam.forEach(each -> {
+            LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                    .set(GroupDO::getSortOrder, each.getSortOrder())
+                    .eq(GroupDO::getGid, each.getGid());
+            update(updateWrapper);
+        });
     }
 
     /**
