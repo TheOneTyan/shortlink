@@ -9,6 +9,7 @@ import org.cloud.shortlink.admin.common.biz.user.UserInfoDTO;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 public class UserTransmitFilter implements Filter {
@@ -18,6 +19,13 @@ public class UserTransmitFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+
+        // TODO 修改拦截路由
+        String requestURI = httpServletRequest.getRequestURI();
+        if (Objects.equals(requestURI, "/api/short-link/v1/user/login")) {
+            return;
+        }
+
         String token = httpServletRequest.getHeader("token");
         String username = httpServletRequest.getHeader("username");
         String loginKey = "login_" + username;
