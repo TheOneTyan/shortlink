@@ -22,7 +22,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLink
     private final RBloomFilter<String> shortLinkCreateCachePenetrationBloomFilter;
 
     @Override
-    public ShortLinkCreateRespDTO saveLink(ShortLinkCreateReqDTO requestParam) {
+    public ShortLinkCreateRespDTO createLink(ShortLinkCreateReqDTO requestParam) {
         String shortUri = generateShortUri(requestParam);
         String fullShortUrl = requestParam.getDomain() +
                 "/" +

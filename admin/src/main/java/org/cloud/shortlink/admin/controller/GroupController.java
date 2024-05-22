@@ -20,13 +20,13 @@ public class GroupController {
     private final GroupService groupService;
 
     @PostMapping("/api/short-link/v1/group")
-    public Result<Void> save(@RequestBody ShortLinkGroupSaveReqDTO requestParam){
-        groupService.saveGroup(requestParam);
+    public Result<Void> create(@RequestBody ShortLinkGroupSaveReqDTO requestParam){
+        groupService.createGroup(requestParam);
         return Results.success();
     }
 
     @GetMapping("/api/short-link/v1/group")
-    public Result<List<ShortLinkGroupListRespDTO>> save(){
+    public Result<List<ShortLinkGroupListRespDTO>> list(){
         return Results.success(groupService.listGroup());
     }
 
@@ -44,7 +44,7 @@ public class GroupController {
     }
 
     @PostMapping("/api/short-link/v1/group/sort")
-    public Result<Void> sortGroup(@RequestBody List<ShortLinkGroupSortReqDTO> requestParam){
+    public Result<Void> sort(@RequestBody List<ShortLinkGroupSortReqDTO> requestParam){
         groupService.sortGroup(requestParam);
         return Results.success();
     }

@@ -24,7 +24,7 @@ import java.util.List;
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
 
     @Override
-    public void saveGroup(ShortLinkGroupSaveReqDTO requestParam) {
+    public void createGroup(ShortLinkGroupSaveReqDTO requestParam) {
         String gid;
         do {
             gid = RandomGenerator.generateRandom();

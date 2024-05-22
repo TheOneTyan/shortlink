@@ -20,8 +20,8 @@ public class ShortLinkController {
      * 创建短链接
      */
     @PostMapping("/api/short-link/v1/link")
-    public Result<ShortLinkCreateRespDTO> save(@RequestBody ShortLinkCreateReqDTO requestParam){
-        return Results.success(shortLinkService.saveLink(requestParam));
+    public Result<ShortLinkCreateRespDTO> create(@RequestBody ShortLinkCreateReqDTO requestParam){
+        return Results.success(shortLinkService.createLink(requestParam));
     }
 
 }

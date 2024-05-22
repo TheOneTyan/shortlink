@@ -6,5 +6,5 @@ import org.cloud.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 
 public interface ShortLinkService extends IService<ShortLinkDO> {
-    ShortLinkCreateRespDTO saveLink(ShortLinkCreateReqDTO requestParam);
+    ShortLinkCreateRespDTO createLink(ShortLinkCreateReqDTO requestParam);
 }

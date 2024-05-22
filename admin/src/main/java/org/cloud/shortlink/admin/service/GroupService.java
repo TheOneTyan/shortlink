@@ -10,7 +10,7 @@ import org.cloud.shortlink.admin.dto.resp.ShortLinkGroupListRespDTO;
 import java.util.List;
 
 public interface GroupService extends IService<GroupDO> {
-    void saveGroup(ShortLinkGroupSaveReqDTO requestParam);
+    void createGroup(ShortLinkGroupSaveReqDTO requestParam);
 
     List<ShortLinkGroupListRespDTO> listGroup();
 
