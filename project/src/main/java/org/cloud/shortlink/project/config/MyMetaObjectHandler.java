@@ -1,4 +1,4 @@
-package org.cloud.shortlink.project.common.constant.config;
+package org.cloud.shortlink.project.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
