@@ -24,7 +24,7 @@ public class UserController {
     /**
      * 根据用户名查询用户 脱敏信息
      */
-    @GetMapping("/api/short-link/v1/user/desensitized/{username}")
+    @GetMapping("/api/short-link/admin/v1/user/desensitized/{username}")
     public Result<UserDesensitizedRespDTO> getDesensitizedUserByUsername(@PathVariable(name = "username") String username) {
         return Results.success(userService.getDesensitizedUserByUsername(username));
     }
@@ -32,7 +32,7 @@ public class UserController {
     /**
      * 根据用户名查询用户 未脱敏信息
      */
-    @GetMapping("/api/short-link/v1/user/sensitive/{username}")
+    @GetMapping("/api/short-link/admin/v1/user/sensitive/{username}")
     public Result<UserSensitiveRespDTO> getSensitiveUserByUsername(@PathVariable(name = "username") String username) {
         return Results.success(userService.getSensitiveUserByUsername(username));
     }
@@ -40,7 +40,7 @@ public class UserController {
     /**
      * 查询用户名可用性
      */
-    @GetMapping("/api/short-link/v1/user/available-username")
+    @GetMapping("/api/short-link/admin/v1/user/available-username")
     public Result<Boolean> availableUsername(@RequestParam(name = "username") String username) {
         return Results.success(userService.availableUsername(username));
     }
@@ -48,7 +48,7 @@ public class UserController {
     /**
      * 注册新用户
      */
-    @PostMapping("/api/short-link/v1/user")
+    @PostMapping("/api/short-link/admin/v1/user")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam) {
         userService.register(requestParam);
         return Results.success();
@@ -57,23 +57,23 @@ public class UserController {
     /**
      * 修改用户信息
      */
-    @PutMapping("/api/short-link/v1/user")
+    @PutMapping("/api/short-link/admin/v1/user")
     public Result<Void> update(@RequestBody UserUpdateReqDTO requestParam) {
         userService.update(requestParam);
         return Results.success();
     }
 
-    @PostMapping("/api/short-link/v1/user/login")
+    @PostMapping("/api/short-link/admin/v1/user/login")
     public Result<UserLoginRespDTO> login(@RequestBody UserLoginReqDTO requestParam) {
         return Results.success(userService.login(requestParam));
     }
 
-    @GetMapping("/api/short-link/v1/user/has-logged")
+    @GetMapping("/api/short-link/admin/v1/user/has-logged")
     public Result<Boolean> hasLogged(@RequestParam(name = "username") String username, @RequestParam(name = "token") String token) {
         return Results.success(userService.hasLogged(username, token));
     }
 
-    @DeleteMapping("/api/short-link/v1/user/log-out")
+    @DeleteMapping("/api/short-link/admin/v1/user/log-out")
     public Result<Void> logOut(@RequestParam(name = "username") String username, @RequestParam(name = "token") String token) {
         userService.logout(username, token);
         return Results.success();
