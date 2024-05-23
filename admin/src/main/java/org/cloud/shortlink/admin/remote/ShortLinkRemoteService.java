@@ -5,7 +5,9 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.cloud.shortlink.admin.convention.result.Result;
+import org.cloud.shortlink.admin.dto.req.RecycleBinClearReqDTO;
 import org.cloud.shortlink.admin.dto.req.RecycleBinMoveIntoReqDTO;
+import org.cloud.shortlink.admin.dto.req.RecycleBinRecoverReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
@@ -41,5 +43,13 @@ public interface ShortLinkRemoteService {
     default Result<Void> moveIntoRecycleBin(RecycleBinMoveIntoReqDTO requestParam) {
         String responseJsonStr = HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/recycle-bin/move-into", JSON.toJSONString(requestParam));
         return JSON.parseObject(responseJsonStr, new TypeReference<>() {});
+    }
+
+    default void recoverRecycleBin(RecycleBinRecoverReqDTO requestParam) {
+        HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/recycle-bin/recover", JSON.toJSONString(requestParam));
+    }
+
+    default void clearRecycleBin(RecycleBinClearReqDTO requestParam) {
+        HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/recycle-bin/clear", JSON.toJSONString(requestParam));
     }
 }
