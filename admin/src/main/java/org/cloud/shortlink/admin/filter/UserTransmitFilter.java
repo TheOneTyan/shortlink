@@ -22,7 +22,8 @@ public class UserTransmitFilter implements Filter {
 
         // TODO 修改拦截路由
         String requestURI = httpServletRequest.getRequestURI();
-        if (Objects.equals(requestURI, "/api/short-link/v1/user/login")) {
+        if (Objects.equals(requestURI, "/api/short-link/admin/v1/user/login")) {
+//            filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 

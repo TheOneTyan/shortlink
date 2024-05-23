@@ -16,6 +16,7 @@ import org.cloud.shortlink.admin.dto.req.UserUpdateReqDTO;
 import org.cloud.shortlink.admin.dto.resp.UserDesensitizedRespDTO;
 import org.cloud.shortlink.admin.dto.resp.UserLoginRespDTO;
 import org.cloud.shortlink.admin.dto.resp.UserSensitiveRespDTO;
+import org.cloud.shortlink.admin.service.GroupService;
 import org.cloud.shortlink.admin.service.UserService;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
@@ -37,6 +38,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
     private final RedissonClient redissonClient;
     private final StringRedisTemplate stringRedisTemplate;
+    private final GroupService groupService;
 
     @Override
     public UserDesensitizedRespDTO getDesensitizedUserByUsername(String username) {
@@ -77,6 +79,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                     throw new ClientException(USER_SAVE_ERROR);
                 }
                 userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
+                groupService.createGroup("default", requestParam.getUsername());
             } else {
                 throw new ClientException(USER_NAME_EXIST);
             }

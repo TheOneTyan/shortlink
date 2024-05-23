@@ -45,6 +45,21 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     }
 
     @Override
+    public void createGroup(String groupName, String username) {
+        String gid;
+        do {
+            gid = RandomGenerator.generateRandom();
+        } while (!availableGroupName(gid, UserContext.getUsername()));
+
+        GroupDO groupDO = GroupDO.builder()
+                .gid(gid)
+                .name(groupName)
+                .username(username)
+                .build();
+        baseMapper.insert(groupDO);
+    }
+
+    @Override
     public List<ShortLinkGroupRespDTO> listGroup() {
         LambdaQueryWrapper<GroupDO> queryWrapper = Wrappers.lambdaQuery(GroupDO.class)
                 .eq(GroupDO::getUsername, UserContext.getUsername())
