@@ -23,6 +23,7 @@ import org.cloud.shortlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import org.cloud.shortlink.project.service.ShortLinkService;
 import org.cloud.shortlink.project.toolkit.HashUtil;
+import org.cloud.shortlink.project.toolkit.LinkUtil;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -32,9 +33,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.cloud.shortlink.project.common.constant.RedisKeyConstant.*;
 
@@ -77,11 +80,16 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
         try {
             baseMapper.insert(shortLinkDO);
             shortLinkGotoMapper.insert(shortLinkGotoDo);
-            stringRedisTemplate.opsForValue().set(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl), requestParam.getOriginUrl());
         } catch (DuplicateKeyException ex) {
             throw new ServiceException("短链接已存在，请勿重复生成");
         }
 
+        stringRedisTemplate.opsForValue().set(
+                String.format(GOTO_SHORT_LINK_KEY, fullShortUrl),
+                requestParam.getOriginUrl(),
+                LinkUtil.getLinkCacheValidTime(requestParam.getValidDate()),
+                TimeUnit.MILLISECONDS
+        );
         shortLinkCreateCachePenetrationBloomFilter.add(fullShortUrl);
 
         return ShortLinkCreateRespDTO.builder()
@@ -166,8 +174,16 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
             ShortLinkDO shortLinkDO = baseMapper.selectOne(linkQueryWrapper);
             if (shortLinkDO == null) {
                 throw new ServiceException("此短链接不存在于数据库中");
+            } else if (shortLinkDO.getValidDate() != null && shortLinkDO.getValidDate().before(new Date())) {
+                throw new ServiceException("短链接已过期");
             }
 
+            stringRedisTemplate.opsForValue().set(
+                    String.format(GOTO_SHORT_LINK_KEY, fullShortUrl),
+                    shortLinkDO.getOriginUrl(),
+                    LinkUtil.getLinkCacheValidTime(shortLinkDO.getValidDate()),
+                    TimeUnit.MILLISECONDS
+            );
             try {
                 response.sendRedirect(shortLinkDO.getOriginUrl());
             } catch (IOException e) {
