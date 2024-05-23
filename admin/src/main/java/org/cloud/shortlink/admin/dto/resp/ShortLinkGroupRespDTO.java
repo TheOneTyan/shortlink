@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShortLinkGroupListRespDTO {
+public class ShortLinkGroupRespDTO {
     /**
      * 分组标识
      */
@@ -32,4 +32,9 @@ public class ShortLinkGroupListRespDTO {
      * 分组排序
      */
     private Integer sortOrder;
+
+    /**
+     * 分组下短链接数量
+     */
+    private Integer shortLinkCount;
 }

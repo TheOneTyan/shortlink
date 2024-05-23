@@ -7,7 +7,7 @@ import org.cloud.shortlink.admin.convention.result.Results;
 import org.cloud.shortlink.admin.dto.req.ShortLinkGroupSaveReqDTO;
 import org.cloud.shortlink.admin.dto.req.ShortLinkGroupSortReqDTO;
 import org.cloud.shortlink.admin.dto.req.ShortLinkGroupUpdateReqDTO;
-import org.cloud.shortlink.admin.dto.resp.ShortLinkGroupListRespDTO;
+import org.cloud.shortlink.admin.dto.resp.ShortLinkGroupRespDTO;
 import org.cloud.shortlink.admin.service.GroupService;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +26,7 @@ public class GroupController {
     }
 
     @GetMapping("/api/short-link/admin/v1/group")
-    public Result<List<ShortLinkGroupListRespDTO>> list(){
+    public Result<List<ShortLinkGroupRespDTO>> list(){
         return Results.success(groupService.listGroup());
     }
 

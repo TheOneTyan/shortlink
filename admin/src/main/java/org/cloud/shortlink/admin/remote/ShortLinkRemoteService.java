@@ -8,9 +8,11 @@ import org.cloud.shortlink.admin.convention.result.Result;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
+import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public interface ShortLinkRemoteService {
@@ -25,6 +27,13 @@ public interface ShortLinkRemoteService {
         paramMap.put("current", requestParam.getCurrent());
         paramMap.put("size", requestParam.getSize());
         String responseJsonStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/link/page", paramMap);
+        return JSON.parseObject(responseJsonStr, new TypeReference<>() {});
+    }
+
+    default Result<List<ShortLinkGroupCountRespDTO>> listGroupCount(List<String> gidList) {
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("gidList", gidList);
+        String responseJsonStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/link/count", requestMap);
         return JSON.parseObject(responseJsonStr, new TypeReference<>() {});
     }
 }
