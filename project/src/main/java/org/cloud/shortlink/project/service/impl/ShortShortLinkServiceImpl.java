@@ -6,9 +6,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.cloud.shortlink.project.convention.exception.ServiceException;
 import org.cloud.shortlink.project.dao.entity.ShortLinkDO;
+import org.cloud.shortlink.project.dao.entity.ShortLinkGotoDo;
+import org.cloud.shortlink.project.dao.mapper.LinkGotoMapper;
 import org.cloud.shortlink.project.dao.mapper.LinkMapper;
 import org.cloud.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkPageReqDTO;
@@ -21,7 +25,9 @@ import org.cloud.shortlink.project.toolkit.HashUtil;
 import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,11 +37,15 @@ import java.util.UUID;
 public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLinkDO> implements ShortLinkService {
 
     private final RBloomFilter<String> shortLinkCreateCachePenetrationBloomFilter;
+    private final LinkGotoMapper linkGotoMapper;
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
         String shortUri = generateShortUri(requestParam);
-        String fullShortUrl = parseProtocolFromUrl(requestParam.getOriginUrl()) + requestParam.getDomain() +
+        // TODO 从原始链接中获取 协议字段
+        String fullShortUrl = "https://" +
+                requestParam.getDomain() +
                 "/" +
                 shortUri;
 
@@ -52,8 +62,13 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLink
                 .fullShortUrl(fullShortUrl)
                 .build();
 
+        ShortLinkGotoDo shortLinkGotoDo = ShortLinkGotoDo.builder()
+                .gid(requestParam.getGid())
+                .fullShortUrl(fullShortUrl)
+                .build();
         try {
             baseMapper.insert(shortLinkDO);
+            linkGotoMapper.insert(shortLinkGotoDo);
         } catch (DuplicateKeyException ex) {
             throw new ServiceException("短链接已存在，请勿重复生成");
         }
@@ -91,6 +106,41 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLink
     public void updateShortLink(ShortLinkUpdateReqDTO requestParam) {
         // 和示例不同，我不允许修改gid，所以不需要先删后插
         // TODO 在【功能扩展@短链接变更分组记录功能】章节后补全更新短链接功能
+    }
+
+    /**
+     * 根据短链接跳转至原链接
+     * @param shortUri 6位短链接
+     */
+    @Override
+    public void restoreUrl(String shortUri, HttpServletRequest request, HttpServletResponse response) {
+        String domain = request.getServerName();
+        // TODO 获取原始链接中的协议字段
+        String fullShortUrl = "https://" +
+                domain +
+                "/" +
+                shortUri;
+        LambdaQueryWrapper<ShortLinkGotoDo> linkGotoQueryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDo.class)
+                .eq(ShortLinkGotoDo::getFullShortUrl, fullShortUrl);
+        ShortLinkGotoDo shortLinkGotoDo = linkGotoMapper.selectOne(linkGotoQueryWrapper);
+        if (shortLinkGotoDo == null) {
+            throw new ServiceException("此完整短链接在路由表中不存在，需要重新插入");
+        }
+
+        LambdaQueryWrapper<ShortLinkDO> linkQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, shortLinkGotoDo.getGid())
+                .eq(ShortLinkDO::getFullShortUrl, fullShortUrl)
+                .eq(ShortLinkDO::getEnableStatus, 0);
+        ShortLinkDO shortLinkDO = baseMapper.selectOne(linkQueryWrapper);
+        if (shortLinkDO == null) {
+            throw new ServiceException("此短链接不存在于数据库中");
+        }
+
+        try {
+            response.sendRedirect(shortLinkDO.getOriginUrl());
+        } catch (IOException e) {
+            throw new ServiceException("跳转失败");
+        }
     }
 
     private String generateShortUri(ShortLinkCreateReqDTO requestParam) {

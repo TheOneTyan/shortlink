@@ -1,6 +1,8 @@
 package org.cloud.shortlink.project.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.cloud.shortlink.project.convention.result.Result;
 import org.cloud.shortlink.project.convention.result.Results;
@@ -12,6 +14,7 @@ import org.cloud.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import org.cloud.shortlink.project.service.ShortLinkService;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -19,6 +22,12 @@ import java.util.List;
 public class ShortLinkController {
 
     private final ShortLinkService shortLinkService;
+
+    @GetMapping("{short-uri}")
+    public Result<Void> restoreUrl(@PathVariable(name = "short-uri") String shortUri, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        shortLinkService.restoreUrl(shortUri, request, response);
+        return Results.success();
+    }
 
     /**
      * 创建短链接
