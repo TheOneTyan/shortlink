@@ -7,12 +7,12 @@ import org.cloud.shortlink.project.convention.result.Results;
 import org.cloud.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkPageReqDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
+import org.cloud.shortlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import org.cloud.shortlink.project.service.ShortLinkService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,4 +33,11 @@ public class ShortLinkController {
         return Results.success(shortLinkService.pageShortLink(requestParam));
     }
 
+    /**
+     * 查询短链接分组内数量
+     */
+    @GetMapping("/api/short-link/v1/link/count")
+    public Result<List<ShortLinkGroupCountRespDTO>> listGroupCount(@RequestParam("gidList") List<String> gidList) {
+        return Results.success(shortLinkService.listGroupShortLinkCount(gidList));
+    }
 }
