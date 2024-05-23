@@ -29,7 +29,7 @@ public class ShortLinkController {
     }
 
     @GetMapping("/api/short-link/v1/link/page")
-    public Result<IPage<ShortLinkPageRespDTO>> page(@RequestBody ShortLinkPageReqDTO requestParam){
+    public Result<IPage<ShortLinkPageRespDTO>> page(ShortLinkPageReqDTO requestParam){
         return Results.success(shortLinkService.pageShortLink(requestParam));
     }
 
