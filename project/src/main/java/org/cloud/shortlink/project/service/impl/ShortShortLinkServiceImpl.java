@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.cloud.shortlink.project.convention.exception.ServiceException;
 import org.cloud.shortlink.project.dao.entity.ShortLinkDO;
 import org.cloud.shortlink.project.dao.entity.ShortLinkGotoDo;
-import org.cloud.shortlink.project.dao.mapper.LinkGotoMapper;
-import org.cloud.shortlink.project.dao.mapper.LinkMapper;
+import org.cloud.shortlink.project.dao.mapper.ShortLinkGotoMapper;
+import org.cloud.shortlink.project.dao.mapper.ShortLinkMapper;
 import org.cloud.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkPageReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
@@ -34,10 +34,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLinkDO> implements ShortLinkService {
+public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> implements ShortLinkService {
 
     private final RBloomFilter<String> shortLinkCreateCachePenetrationBloomFilter;
-    private final LinkGotoMapper linkGotoMapper;
+    private final ShortLinkGotoMapper shortLinkGotoMapper;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -68,7 +68,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLink
                 .build();
         try {
             baseMapper.insert(shortLinkDO);
-            linkGotoMapper.insert(shortLinkGotoDo);
+            shortLinkGotoMapper.insert(shortLinkGotoDo);
         } catch (DuplicateKeyException ex) {
             throw new ServiceException("短链接已存在，请勿重复生成");
         }
@@ -122,7 +122,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLink
                 shortUri;
         LambdaQueryWrapper<ShortLinkGotoDo> linkGotoQueryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDo.class)
                 .eq(ShortLinkGotoDo::getFullShortUrl, fullShortUrl);
-        ShortLinkGotoDo shortLinkGotoDo = linkGotoMapper.selectOne(linkGotoQueryWrapper);
+        ShortLinkGotoDo shortLinkGotoDo = shortLinkGotoMapper.selectOne(linkGotoQueryWrapper);
         if (shortLinkGotoDo == null) {
             throw new ServiceException("此完整短链接在路由表中不存在，需要重新插入");
         }
