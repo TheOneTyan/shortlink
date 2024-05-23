@@ -12,6 +12,7 @@ import org.cloud.shortlink.project.dao.entity.ShortLinkDO;
 import org.cloud.shortlink.project.dao.mapper.LinkMapper;
 import org.cloud.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import org.cloud.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -34,7 +35,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLink
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
         String shortUri = generateShortUri(requestParam);
-        String fullShortUrl = requestParam.getDomain() +
+        String fullShortUrl = parseProtocolFromUrl(requestParam.getOriginUrl()) + requestParam.getDomain() +
                 "/" +
                 shortUri;
 
@@ -104,5 +105,15 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLink
             maxTryCount--;
         }
         return shortUri;
+    }
+
+    private String parseProtocolFromUrl(String url) {
+        if (url.startsWith("http://")) {
+            return "http://";
+        } else if (url.startsWith("https://")) {
+            return "https://";
+        } else {
+            return "";
+        }
     }
 }
