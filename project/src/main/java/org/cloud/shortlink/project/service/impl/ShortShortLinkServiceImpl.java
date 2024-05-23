@@ -87,6 +87,12 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<LinkMapper, ShortLink
         return BeanUtil.copyToList(resultMaps, ShortLinkGroupCountRespDTO.class);
     }
 
+    @Override
+    public void updateShortLink(ShortLinkUpdateReqDTO requestParam) {
+        // 和示例不同，我不允许修改gid，所以不需要先删后插
+        // TODO 在【功能扩展@短链接变更分组记录功能】章节后补全更新短链接功能
+    }
+
     private String generateShortUri(ShortLinkCreateReqDTO requestParam) {
         String shortUri = "";
         int maxTryCount = 10;
