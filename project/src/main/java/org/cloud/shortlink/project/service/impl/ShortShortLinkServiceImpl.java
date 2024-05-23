@@ -1,6 +1,7 @@
 package org.cloud.shortlink.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -23,7 +24,10 @@ import org.cloud.shortlink.project.dto.resp.ShortLinkPageRespDTO;
 import org.cloud.shortlink.project.service.ShortLinkService;
 import org.cloud.shortlink.project.toolkit.HashUtil;
 import org.redisson.api.RBloomFilter;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,12 +36,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.cloud.shortlink.project.common.constant.RedisKeyConstant.*;
+
 @Service
 @RequiredArgsConstructor
 public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> implements ShortLinkService {
 
     private final RBloomFilter<String> shortLinkCreateCachePenetrationBloomFilter;
     private final ShortLinkGotoMapper shortLinkGotoMapper;
+    private final StringRedisTemplate stringRedisTemplate;
+    private final RedissonClient redissonClient;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -69,6 +77,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
         try {
             baseMapper.insert(shortLinkDO);
             shortLinkGotoMapper.insert(shortLinkGotoDo);
+            stringRedisTemplate.opsForValue().set(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl), requestParam.getOriginUrl());
         } catch (DuplicateKeyException ex) {
             throw new ServiceException("短链接已存在，请勿重复生成");
         }
@@ -120,27 +129,54 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
                 domain +
                 "/" +
                 shortUri;
-        LambdaQueryWrapper<ShortLinkGotoDo> linkGotoQueryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDo.class)
-                .eq(ShortLinkGotoDo::getFullShortUrl, fullShortUrl);
-        ShortLinkGotoDo shortLinkGotoDo = shortLinkGotoMapper.selectOne(linkGotoQueryWrapper);
-        if (shortLinkGotoDo == null) {
-            throw new ServiceException("此完整短链接在路由表中不存在，需要重新插入");
+        String originUrl = stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
+        if (StrUtil.isNotBlank(originUrl)) {
+            try {
+                response.sendRedirect(originUrl);
+            } catch (IOException e) {
+                throw new ServiceException("跳转失败");
+            }
+            return;
         }
 
-        LambdaQueryWrapper<ShortLinkDO> linkQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
-                .eq(ShortLinkDO::getGid, shortLinkGotoDo.getGid())
-                .eq(ShortLinkDO::getFullShortUrl, fullShortUrl)
-                .eq(ShortLinkDO::getEnableStatus, 0);
-        ShortLinkDO shortLinkDO = baseMapper.selectOne(linkQueryWrapper);
-        if (shortLinkDO == null) {
-            throw new ServiceException("此短链接不存在于数据库中");
-        }
-
+        RLock lock = redissonClient.getLock(String.format(LOCK_GOTO_SHORT_LINK_KEY, fullShortUrl));
+        lock.lock();
         try {
-            response.sendRedirect(shortLinkDO.getOriginUrl());
-        } catch (IOException e) {
-            throw new ServiceException("跳转失败");
+            originUrl = stringRedisTemplate.opsForValue().get(String.format(GOTO_SHORT_LINK_KEY, fullShortUrl));
+            if (StrUtil.isNotBlank(originUrl)) {
+                try {
+                    response.sendRedirect(originUrl);
+                } catch (IOException e) {
+                    throw new ServiceException("跳转失败");
+                }
+                return;
+            }
+
+            LambdaQueryWrapper<ShortLinkGotoDo> linkGotoQueryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDo.class)
+                    .eq(ShortLinkGotoDo::getFullShortUrl, fullShortUrl);
+            ShortLinkGotoDo shortLinkGotoDo = shortLinkGotoMapper.selectOne(linkGotoQueryWrapper);
+            if (shortLinkGotoDo == null) {
+                throw new ServiceException("此完整短链接在路由表中不存在，需要重新插入");
+            }
+
+            LambdaQueryWrapper<ShortLinkDO> linkQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                    .eq(ShortLinkDO::getGid, shortLinkGotoDo.getGid())
+                    .eq(ShortLinkDO::getFullShortUrl, fullShortUrl)
+                    .eq(ShortLinkDO::getEnableStatus, 0);
+            ShortLinkDO shortLinkDO = baseMapper.selectOne(linkQueryWrapper);
+            if (shortLinkDO == null) {
+                throw new ServiceException("此短链接不存在于数据库中");
+            }
+
+            try {
+                response.sendRedirect(shortLinkDO.getOriginUrl());
+            } catch (IOException e) {
+                throw new ServiceException("跳转失败");
+            }
+        } finally {
+            lock.unlock();
         }
+
     }
 
     private String generateShortUri(ShortLinkCreateReqDTO requestParam) {
