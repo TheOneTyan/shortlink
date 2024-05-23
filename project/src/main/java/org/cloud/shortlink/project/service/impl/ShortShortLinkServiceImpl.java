@@ -130,7 +130,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
      * @param shortUri 6位短链接
      */
     @Override
-    public void restoreUrl(String shortUri, HttpServletRequest request, HttpServletResponse response) {
+    public void restoreUrl(String shortUri, HttpServletRequest request, HttpServletResponse response) throws IOException {
         String domain = request.getServerName();
         // TODO 获取原始链接中的协议字段
         String fullShortUrl = "https://" +
@@ -173,7 +173,8 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
                     .eq(ShortLinkDO::getEnableStatus, 0);
             ShortLinkDO shortLinkDO = baseMapper.selectOne(linkQueryWrapper);
             if (shortLinkDO == null) {
-                throw new ServiceException("此短链接不存在于数据库中");
+                response.sendRedirect("/page/notfound");
+                return;
             } else if (shortLinkDO.getValidDate() != null && shortLinkDO.getValidDate().before(new Date())) {
                 throw new ServiceException("短链接已过期");
             }
