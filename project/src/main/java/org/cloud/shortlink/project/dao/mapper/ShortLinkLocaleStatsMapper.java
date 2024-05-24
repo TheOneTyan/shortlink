@@ -20,5 +20,5 @@ public interface ShortLinkLocaleStatsMapper extends BaseMapper<ShortLinkLocaleSt
             ON DUPLICATE KEY UPDATE cnt = cnt + #{linkLocaleStats.cnt};
             """
     )
-    void shortLinkLocaleStats(@Param("linkLocaleStats") ShortLinkLocaleStatsDO shortLinkLocaleStatsDO);
+    void shortLinkLocaleStats(@Param("shortLinkLocaleStats") ShortLinkLocaleStatsDO shortLinkLocaleStatsDO);
 }

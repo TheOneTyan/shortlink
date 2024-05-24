@@ -18,14 +18,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.cloud.shortlink.project.convention.exception.ServiceException;
-import org.cloud.shortlink.project.dao.entity.ShortLinkAccessStatsDO;
-import org.cloud.shortlink.project.dao.entity.ShortLinkDO;
-import org.cloud.shortlink.project.dao.entity.ShortLinkGotoDo;
-import org.cloud.shortlink.project.dao.entity.ShortLinkLocaleStatsDO;
-import org.cloud.shortlink.project.dao.mapper.ShortLinkAccessStatsMapper;
-import org.cloud.shortlink.project.dao.mapper.ShortLinkGotoMapper;
-import org.cloud.shortlink.project.dao.mapper.ShortLinkLocaleStatsMapper;
-import org.cloud.shortlink.project.dao.mapper.ShortLinkMapper;
+import org.cloud.shortlink.project.dao.entity.*;
+import org.cloud.shortlink.project.dao.mapper.*;
 import org.cloud.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkPageReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
@@ -61,6 +55,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
     private final ShortLinkGotoMapper shortLinkGotoMapper;
     private final ShortLinkAccessStatsMapper shortLinkAccessStatsMapper;
     private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
+    private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
 
@@ -286,7 +281,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
             if (StrUtil.isNotBlank(infoCode) && StrUtil.equals(infoCode, "10000")) {
                 String province = localeResultObj.getString("province");
                 boolean unknownFlag = StrUtil.equals(province, "[]");
-                ShortLinkLocaleStatsDO linkLocaleStatsDO = ShortLinkLocaleStatsDO.builder()
+                ShortLinkLocaleStatsDO shortLinkLocaleStatsDO = ShortLinkLocaleStatsDO.builder()
                         .province(unknownFlag ? "未知" : province)
                         .city(unknownFlag ? "未知" : localeResultObj.getString("city"))
                         .adcode(unknownFlag ? "未知" : localeResultObj.getString("adcode"))
@@ -296,8 +291,17 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
                         .gid(gid)
                         .date(date)
                         .build();
-                shortLinkLocaleStatsMapper.shortLinkLocaleStats(linkLocaleStatsDO);
+                shortLinkLocaleStatsMapper.shortLinkLocaleStats(shortLinkLocaleStatsDO);
             }
+
+            ShortLinkOsStatsDO shortLinkOsStatsDO = ShortLinkOsStatsDO.builder()
+                    .os(LinkUtil.getOs(request))
+                    .cnt(1)
+                    .gid(gid)
+                    .fullShortUrl(fullShortUrl)
+                    .date(new Date())
+                    .build();
+            shortLinkOsStatsMapper.shortLinkOsState(shortLinkOsStatsDO);
         } catch (Exception ex) {
             throw new ServiceException("统计失败");
         }
