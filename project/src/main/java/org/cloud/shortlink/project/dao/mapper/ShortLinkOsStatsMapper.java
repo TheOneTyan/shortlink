@@ -20,5 +20,5 @@ public interface ShortLinkOsStatsMapper extends BaseMapper<ShortLinkOsStatsDO> {
         ON DUPLICATE KEY UPDATE cnt = cnt +  #{linkOsStats.cnt};
         """
     )
-    void shortLinkOsState(@Param("shortLinkOsStats") ShortLinkOsStatsDO linkOsStatsDO);
+    void shortLinkOsStats(@Param("shortLinkOsStats") ShortLinkOsStatsDO linkOsStatsDO);
 }

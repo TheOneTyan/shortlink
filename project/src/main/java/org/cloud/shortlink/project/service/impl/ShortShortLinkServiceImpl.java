@@ -56,6 +56,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
     private final ShortLinkAccessStatsMapper shortLinkAccessStatsMapper;
     private final ShortLinkLocaleStatsMapper shortLinkLocaleStatsMapper;
     private final ShortLinkOsStatsMapper shortLinkOsStatsMapper;
+    private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
 
@@ -294,14 +295,25 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
                 shortLinkLocaleStatsMapper.shortLinkLocaleStats(shortLinkLocaleStatsDO);
             }
 
+            // 统计OS
             ShortLinkOsStatsDO shortLinkOsStatsDO = ShortLinkOsStatsDO.builder()
                     .os(LinkUtil.getOs(request))
                     .cnt(1)
                     .gid(gid)
                     .fullShortUrl(fullShortUrl)
-                    .date(new Date())
+                    .date(date)
                     .build();
-            shortLinkOsStatsMapper.shortLinkOsState(shortLinkOsStatsDO);
+            shortLinkOsStatsMapper.shortLinkOsStats(shortLinkOsStatsDO);
+
+            // 统计浏览器
+            ShortLinkBrowserStatsDO shortLinkBrowserStatsDO = ShortLinkBrowserStatsDO.builder()
+                    .browser(LinkUtil.getBrowser(request))
+                    .cnt(1)
+                    .gid(gid)
+                    .fullShortUrl(fullShortUrl)
+                    .date(date)
+                    .build();
+            shortLinkBrowserStatsMapper.shortLinkBrowserStats(shortLinkBrowserStatsDO);
         } catch (Exception ex) {
             throw new ServiceException("统计失败");
         }
