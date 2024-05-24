@@ -16,8 +16,9 @@ public interface ShortLinkBrowserStatsMapper extends BaseMapper<ShortLinkBrowser
     @Insert(
         """
         INSERT INTO t_link_browser_stats (full_short_url, gid, date, cnt, browser, create_time, update_time, del_flag)
-        VALUES( #{linkBrowserStats.fullShortUrl}, #{linkBrowserStats.gid}, #{linkBrowserStats.date}, #{linkBrowserStats.cnt}, #{linkBrowserStats.browser}, NOW(), NOW(), 0) 
-        ON DUPLICATE KEY UPDATE cnt = cnt +  #{linkBrowserStats.cnt};
+        VALUES (#{shortLinkBrowserStats.fullShortUrl}, #{shortLinkBrowserStats.gid}, #{shortLinkBrowserStats.date}, #{shortLinkBrowserStats.cnt}, #{shortLinkBrowserStats.browser}, NOW(), NOW(), 0)
+        ON DUPLICATE KEY UPDATE
+        cnt = cnt +  #{shortLinkBrowserStats.cnt};
         """
     )
     void shortLinkBrowserStats(@Param("shortLinkBrowserStats") ShortLinkBrowserStatsDO linkBrowserStatsDO);
