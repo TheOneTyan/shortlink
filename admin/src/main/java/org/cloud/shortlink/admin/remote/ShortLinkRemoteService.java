@@ -8,11 +8,13 @@ import org.cloud.shortlink.admin.convention.result.Result;
 import org.cloud.shortlink.admin.dto.req.RecycleBinClearReqDTO;
 import org.cloud.shortlink.admin.dto.req.RecycleBinMoveIntoReqDTO;
 import org.cloud.shortlink.admin.dto.req.RecycleBinRecoverReqDTO;
+import org.cloud.shortlink.admin.dto.req.ShortLinkRecycleBinPageReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.HashMap;
 import java.util.List;
@@ -51,5 +53,15 @@ public interface ShortLinkRemoteService {
 
     default void clearRecycleBin(RecycleBinClearReqDTO requestParam) {
         HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/recycle-bin/clear", JSON.toJSONString(requestParam));
+    }
+
+    @PostMapping("/api/short-link/v1/recycle-bin/page")
+    default Result<IPage<ShortLinkPageRespDTO>> pageRecycleBin(ShortLinkRecycleBinPageReqDTO requestParam) {
+        Map<String ,Object> requestMap = new HashMap<>();
+        requestMap.put("gidList", requestParam.getGidList());
+        requestMap.put("current", requestParam.getCurrent());
+        requestMap.put("size", requestParam.getSize());
+        String resultJsonStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/recycle-bin/page", requestMap);
+        return JSON.parseObject(resultJsonStr, new TypeReference<>() {});
     }
 }
