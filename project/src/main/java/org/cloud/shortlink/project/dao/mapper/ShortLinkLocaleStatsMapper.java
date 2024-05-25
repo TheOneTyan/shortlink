@@ -3,7 +3,11 @@ package org.cloud.shortlink.project.dao.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.cloud.shortlink.project.dao.entity.ShortLinkLocaleStatsDO;
+import org.cloud.shortlink.project.dto.req.ShortLinkStatsReqDTO;
+
+import java.util.List;
 
 /**
  * 地区统计访问持久层
@@ -22,4 +26,20 @@ public interface ShortLinkLocaleStatsMapper extends BaseMapper<ShortLinkLocaleSt
             """
     )
     void shortLinkLocaleStats(@Param("shortLinkLocaleStats") ShortLinkLocaleStatsDO shortLinkLocaleStatsDO);
+
+    /**
+     * 根据短链接获取指定日期内基础监控数据
+     */
+    @Select("SELECT " +
+            "    province, " +
+            "    SUM(cnt) AS cnt " +
+            "FROM " +
+            "    t_link_locale_stats " +
+            "WHERE " +
+            "    full_short_url = #{param.fullShortUrl} " +
+            "    AND gid = #{param.gid} " +
+            "    AND date BETWEEN #{param.startDate} and #{param.endDate} " +
+            "GROUP BY " +
+            "    full_short_url, gid, province;")
+    List<ShortLinkLocaleStatsDO> listLocaleByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
 }
