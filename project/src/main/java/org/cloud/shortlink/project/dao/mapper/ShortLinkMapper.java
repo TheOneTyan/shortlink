@@ -1,9 +1,11 @@
 package org.cloud.shortlink.project.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 import org.cloud.shortlink.project.dao.entity.ShortLinkDO;
+import org.cloud.shortlink.project.dto.req.ShortLinkPageReqDTO;
 
 public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
     /**
@@ -13,13 +15,13 @@ public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
             """
             UPDATE t_link
             SET
-                total_pv = total_pv + #{totalPv}, 
-                total_uv = total_uv + #{totalUv}, 
-                total_uip = total_uip + #{totalUip} 
-            WHERE 
-                gid = #{gid} 
-                AND 
-                full_short_url = #{fullShortUrl}       
+                total_pv = total_pv + #{totalPv},
+                total_uv = total_uv + #{totalUv},
+                total_uip = total_uip + #{totalUip}
+            WHERE
+                gid = #{gid}
+                AND
+                full_short_url = #{fullShortUrl}
             """
     )
     void incrementStats(
@@ -29,4 +31,10 @@ public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
             @Param("totalUv") Integer totalUv,
             @Param("totalUip") Integer totalUip
     );
+
+
+    /**
+     * 分页统计短链接
+     */
+    IPage<ShortLinkDO> pageShortLink(ShortLinkPageReqDTO requestParam);
 }
