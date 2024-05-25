@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
 import org.cloud.shortlink.project.convention.result.Result;
 import org.cloud.shortlink.project.convention.result.Results;
+import org.cloud.shortlink.project.dto.req.ShortLinkGroupStatsReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkStatsReqDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkStatsAccessRecordRespDTO;
@@ -29,6 +30,13 @@ public class ShortLinkStatsController {
         return Results.success(shortLinkStatsService.oneShortLinkStats(requestParam));
     }
 
+    /**
+     * 访问分组短链接指定时间内监控数据
+     */
+    @GetMapping("/api/short-link/v1/stats/group")
+    public Result<ShortLinkStatsRespDTO> groupShortLinkStats(ShortLinkGroupStatsReqDTO requestParam) {
+        return Results.success(shortLinkStatsService.groupShortLinkStats(requestParam));
+    }
 
     /**
      * 访问单个短链接指定时间内访问记录监控数据
