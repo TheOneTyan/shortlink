@@ -23,6 +23,7 @@ public class UserTransmitFilter implements Filter {
         // TODO 修改拦截路由
         String requestURI = httpServletRequest.getRequestURI();
         if (Objects.equals(requestURI, "/api/short-link/admin/v1/user/login")) {
+            // TODO 登录功能不可用，会被拦截，想获取token可以把下一行取消注释
 //            filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
