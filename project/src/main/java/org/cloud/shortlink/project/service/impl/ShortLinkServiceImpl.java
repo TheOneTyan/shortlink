@@ -61,6 +61,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkAccessLogsMapper shortLinkAccessLogsMapper;
     private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
     private final ShortLinkNetworkStatsMapper shortLinkNetworkStatsMapper;
+    private final ShortLinkStatsTodayMapper shortLinkStatsTodayMapper;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
 
@@ -362,7 +363,20 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .fullShortUrl(fullShortUrl)
                     .build();
             shortLinkAccessLogsMapper.insert(shortLinkAccessLogsDO);
+
+            // 汇总统计增加
             baseMapper.incrementStats(gid, fullShortUrl, 1, uvFirstFlag.get() ? 1 : 0, uipFirstFlag ? 1 : 0);
+
+            // 今日统计增加
+            ShortLinkStatsTodayDO shortLinkStatsTodayDO = ShortLinkStatsTodayDO.builder()
+                    .todayPv(1)
+                    .todayUv(uvFirstFlag.get() ? 1 : 0)
+                    .todayUip(uipFirstFlag ? 1 : 0)
+                    .gid(gid)
+                    .fullShortUrl(fullShortUrl)
+                    .date(date)
+                    .build();
+            shortLinkStatsTodayMapper.shortLinkTodayState(shortLinkStatsTodayDO);
         } catch (Exception ex) {
             throw new ServiceException("统计失败");
         }

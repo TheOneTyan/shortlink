@@ -1,8 +1,7 @@
 package org.cloud.shortlink.project.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.cloud.shortlink.admin.common.database.BaseDO;
 
 import java.util.Date;
@@ -10,6 +9,9 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_link_stats_today")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ShortLinkStatsTodayDO extends BaseDO {
 
     /**
@@ -45,5 +47,5 @@ public class ShortLinkStatsTodayDO extends BaseDO {
     /**
      * 今日ip数
      */
-    private Integer todayIpCount;
+    private Integer todayUip;
 }
