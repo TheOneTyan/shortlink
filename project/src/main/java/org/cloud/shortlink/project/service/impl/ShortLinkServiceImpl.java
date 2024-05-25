@@ -362,6 +362,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .fullShortUrl(fullShortUrl)
                     .build();
             shortLinkAccessLogsMapper.insert(shortLinkAccessLogsDO);
+            baseMapper.incrementStats(gid, fullShortUrl, 1, uvFirstFlag.get() ? 1 : 0, uipFirstFlag ? 1 : 0);
         } catch (Exception ex) {
             throw new ServiceException("统计失败");
         }
