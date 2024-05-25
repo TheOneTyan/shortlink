@@ -29,12 +29,13 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService() {};
 
+    // 用户登录后创建
     @Override
     public void createGroup(ShortLinkGroupSaveReqDTO requestParam) {
         String gid;
         do {
             gid = RandomGenerator.generateRandom();
-        } while (!availableGroupName(gid, UserContext.getUsername()));
+        } while (hasGroupNameUsed(gid, UserContext.getUsername()));
 
         GroupDO groupDO = GroupDO.builder()
                 .gid(gid)
@@ -44,12 +45,13 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         baseMapper.insert(groupDO);
     }
 
+    // 用户注册时默认创建
     @Override
     public void createGroup(String groupName, String username) {
         String gid;
         do {
             gid = RandomGenerator.generateRandom();
-        } while (!availableGroupName(gid, UserContext.getUsername()));
+        } while (hasGroupNameUsed(gid, username));
 
         GroupDO groupDO = GroupDO.builder()
                 .gid(gid)
@@ -102,13 +104,13 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     /**
      * @return
-     * true -> 可用
-     * false ->不可用
+     * true -> 不可用
+     * false ->可用
      */
-    private boolean availableGroupName(String gid, String username) {
+    private boolean hasGroupNameUsed(String gid, String username) {
         LambdaQueryWrapper<GroupDO> queryWrapper = Wrappers.lambdaQuery(GroupDO.class)
                 .eq(GroupDO::getGid, gid)
                 .eq(GroupDO::getUsername, username);
-        return baseMapper.selectOne(queryWrapper) == null;
+        return baseMapper.selectOne(queryWrapper) != null;
     }
 }
