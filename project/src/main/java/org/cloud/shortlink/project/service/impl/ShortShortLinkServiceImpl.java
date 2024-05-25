@@ -60,6 +60,7 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
     private final ShortLinkBrowserStatsMapper shortLinkBrowserStatsMapper;
     private final ShortLinkAccessLogsMapper shortLinkAccessLogsMapper;
     private final ShortLinkDeviceStatsMapper shortLinkDeviceStatsMapper;
+    private final ShortLinkNetworkStatsMapper shortLinkNetworkStatsMapper;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
 
@@ -341,6 +342,16 @@ public class ShortShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, Shor
                     .date(date)
                     .build();
             shortLinkDeviceStatsMapper.shortLinkDeviceStats(shortLinkDeviceStatsDO);
+
+            // 访问网络
+            ShortLinkNetworkStatsDO linkNetworkStatsDO = ShortLinkNetworkStatsDO.builder()
+                    .network(LinkUtil.getNetwork(request))
+                    .cnt(1)
+                    .gid(gid)
+                    .fullShortUrl(fullShortUrl)
+                    .date(date)
+                    .build();
+            shortLinkNetworkStatsMapper.shortLinkNetworkStats(linkNetworkStatsDO);
         } catch (Exception ex) {
             throw new ServiceException("统计失败");
         }
