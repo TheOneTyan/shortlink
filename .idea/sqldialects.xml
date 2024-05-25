@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/project/src/main/java/org/cloud/shortlink/project/dao/mapper/ShortLinkAccessStatsMapper.java" dialect="GenericSQL" />
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/5829a891-7983-4f75-b6ef-64cdcebf1c17/console_1.sql" dialect="MySQL" />
     <file url="PROJECT" dialect="MySQL" />
   </component>

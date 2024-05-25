@@ -1,14 +1,17 @@
 package org.cloud.shortlink.project.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
-import org.cloud.shortlink.project.dao.entity.ShortLinkAccessStatsDO;
-import org.cloud.shortlink.project.dao.entity.ShortLinkDeviceStatsDO;
-import org.cloud.shortlink.project.dao.entity.ShortLinkLocaleStatsDO;
-import org.cloud.shortlink.project.dao.entity.ShortLinkNetworkStatsDO;
+import org.cloud.shortlink.project.dao.entity.*;
 import org.cloud.shortlink.project.dao.mapper.*;
+import org.cloud.shortlink.project.dto.req.ShortLinkStatsAccessRecordReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkStatsReqDTO;
 import org.cloud.shortlink.project.dto.resp.*;
 import org.cloud.shortlink.project.service.ShortLinkStatsService;
@@ -221,5 +224,45 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .deviceStats(deviceStats)
                 .networkStats(networkStats)
                 .build();
+    }
+
+    @Override
+    public IPage<ShortLinkStatsAccessRecordRespDTO> shortLinkStatsAccessRecord(ShortLinkStatsAccessRecordReqDTO requestParam) {
+        // 先查询 start time < create time < end time 的访问记录
+        LambdaQueryWrapper<ShortLinkAccessLogsDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkAccessLogsDO.class)
+                .eq(ShortLinkAccessLogsDO::getGid, requestParam.getGid())
+                .eq(ShortLinkAccessLogsDO::getFullShortUrl, requestParam.getFullShortUrl())
+                .between(ShortLinkAccessLogsDO::getCreateTime, requestParam.getStartDate(), requestParam.getEndDate())
+                .orderByDesc(ShortLinkAccessLogsDO::getCreateTime);
+        IPage<ShortLinkAccessLogsDO> linkAccessLogsDOIPage = shortLinkAccessLogsMapper.selectPage(requestParam, queryWrapper);
+
+        // 可能为null，所以需要判断
+        IPage<ShortLinkStatsAccessRecordRespDTO> actualResult = linkAccessLogsDOIPage.convert(each -> BeanUtil.toBean(each, ShortLinkStatsAccessRecordRespDTO.class));
+        List<String> userAccessLogsList = actualResult.getRecords().stream()
+                .map(ShortLinkStatsAccessRecordRespDTO::getUser)
+                .toList();
+        if (CollectionUtil.isEmpty(userAccessLogsList)) {
+            return actualResult;
+        }
+        // min(create time) 为此用户第一次访问的时间
+        // 再查询 start time < min(create time) < end time 的访问记录
+        // 在 [start time, end time] 内访问的用户则为新用户
+        List<Map<String, Object>> uvTypeList = shortLinkAccessLogsMapper.selectUvTypeByUsers(
+                requestParam.getGid(),
+                requestParam.getFullShortUrl(),
+                requestParam.getStartDate(),
+                requestParam.getEndDate(),
+                userAccessLogsList
+        );
+        actualResult.getRecords().forEach(each -> {
+            String uvType = uvTypeList.stream()
+                    .filter(item -> Objects.equals(each.getUser(), item.get("user")))
+                    .findFirst()
+                    .map(item -> item.get("uvType"))
+                    .map(Object::toString)
+                    .orElse("旧访客");
+            each.setUvType(uvType);
+        });
+        return actualResult;
     }
 }
