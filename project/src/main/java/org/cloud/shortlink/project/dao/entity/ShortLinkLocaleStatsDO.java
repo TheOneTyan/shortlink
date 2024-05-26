@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.cloud.shortlink.admin.common.database.BaseDO;
+import org.cloud.shortlink.project.common.database.BaseDO;
 
 import java.util.Date;
 

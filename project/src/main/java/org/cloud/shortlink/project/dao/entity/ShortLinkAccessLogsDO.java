@@ -2,7 +2,7 @@ package org.cloud.shortlink.project.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
-import org.cloud.shortlink.admin.common.database.BaseDO;
+import org.cloud.shortlink.project.common.database.BaseDO;
 
 /**
  * 访问日志监控实体

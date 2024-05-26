@@ -2,8 +2,8 @@ package org.cloud.shortlink.project.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.RequiredArgsConstructor;
-import org.cloud.shortlink.admin.convention.result.Result;
-import org.cloud.shortlink.admin.convention.result.Results;
+import org.cloud.shortlink.project.convention.result.Result;
+import org.cloud.shortlink.project.convention.result.Results;
 import org.cloud.shortlink.project.dto.req.RecycleBinClearReqDTO;
 import org.cloud.shortlink.project.dto.req.RecycleBinMoveIntoReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkRecycleBinPageReqDTO;
