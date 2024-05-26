@@ -11,10 +11,6 @@ import java.util.Date;
 @Data
 public class ShortLinkUpdateReqDTO {
 
-    /**
-     * 后续修改为 oldGid 和 newGid
-     */
-    private String gid;
 
     /**
      * 原始链接
@@ -30,6 +26,11 @@ public class ShortLinkUpdateReqDTO {
      * 原始分组标识
      */
     private String originGid;
+
+    /**
+     * 目标分组标识
+     */
+    private String gid;
 
     /**
      * 有效期类型 0：永久有效 1：自定义

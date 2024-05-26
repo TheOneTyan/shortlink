@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
@@ -181,12 +182,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         return BeanUtil.copyToList(resultMaps, ShortLinkGroupCountRespDTO.class);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void updateShortLink(ShortLinkUpdateReqDTO requestParam) {
         // 和示例不同，我不允许修改gid，所以不需要先删后插
         // TODO 在【功能扩展@短链接变更分组记录功能】章节后补全更新短链接功能
         LambdaQueryWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
-                .eq(ShortLinkDO::getGid, requestParam.getGid())
+                .eq(ShortLinkDO::getGid, requestParam.getOriginGid())
                 .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
                 .eq(ShortLinkDO::getDelFlag, 0)
                 .eq(ShortLinkDO::getEnableStatus, 0);
@@ -226,14 +228,16 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 LambdaUpdateWrapper<ShortLinkDO> linkUpdateWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
                         .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
                         .eq(ShortLinkDO::getGid, hasShortLinkDO.getGid())
-                        .eq(ShortLinkDO::getDelFlag, 0)
+//                        .eq(ShortLinkDO::getDelFlag, 0)
                         .eq(ShortLinkDO::getDelTime, 0L)
-                        .eq(ShortLinkDO::getEnableStatus, 0);
-                ShortLinkDO delShortLinkDO = ShortLinkDO.builder()
-                        .delTime(System.currentTimeMillis())
-                        .build();
-                delShortLinkDO.setDelFlag(1);
-                baseMapper.update(delShortLinkDO, linkUpdateWrapper);
+                        .eq(ShortLinkDO::getEnableStatus, 0)
+                        .set(ShortLinkDO::getDelTime, System.currentTimeMillis());
+//                ShortLinkDO delShortLinkDO = ShortLinkDO.builder()
+//                        .delTime(System.currentTimeMillis())
+//                        .build();
+//                delShortLinkDO.setDelFlag(1);
+//                baseMapper.update(delShortLinkDO, linkUpdateWrapper);
+                baseMapper.delete(linkUpdateWrapper);
                 ShortLinkDO shortLinkDO = ShortLinkDO.builder()
                         .domain(createShortLinkDefaultDomain)
                         .originUrl(requestParam.getOriginUrl())

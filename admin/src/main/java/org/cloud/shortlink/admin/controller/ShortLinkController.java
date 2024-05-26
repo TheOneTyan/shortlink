@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.cloud.shortlink.admin.convention.result.Result;
+import org.cloud.shortlink.admin.convention.result.Results;
 import org.cloud.shortlink.admin.remote.ShortLinkRemoteService;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkBatchCreateReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import org.cloud.shortlink.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkBaseInfoRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkBatchCreateRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
@@ -35,10 +37,19 @@ public class ShortLinkController {
     }
 
     /**
+     * 修改短链接
+     */
+    @PostMapping("/api/short-link/admin/v1/link/update")
+    public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
+        shortLinkRemoteService.updateShortLink(requestParam);
+        return Results.success();
+    }
+
+    /**
      * 批量创建短链接
      */
     @SneakyThrows
-    @PostMapping("/api/short-link/admin/v1/create/batch")
+    @PostMapping("/api/short-link/admin/v1/link/create/batch")
     public void batchCreateShortLink(@RequestBody ShortLinkBatchCreateReqDTO requestParam, HttpServletResponse response) {
         Result<ShortLinkBatchCreateRespDTO> shortLinkBatchCreateRespDTOResult = shortLinkRemoteService.batchCreateShortLink(requestParam);
         if (shortLinkBatchCreateRespDTOResult.isSuccess()) {

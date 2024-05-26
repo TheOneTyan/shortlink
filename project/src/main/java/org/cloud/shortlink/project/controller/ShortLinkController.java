@@ -43,7 +43,7 @@ public class ShortLinkController {
     /**
      * 批量创建短链接
      */
-    @PostMapping("/api/short-link/v1/create/batch")
+    @PostMapping("/api/short-link/v1/link/create/batch")
     public Result<ShortLinkBatchCreateRespDTO> batchCreateShortLink(@RequestBody ShortLinkBatchCreateReqDTO requestParam) {
         return Results.success(shortLinkService.batchCreateShortLink(requestParam));
     }
@@ -51,7 +51,7 @@ public class ShortLinkController {
     /**
      * 修改短链接
      */
-    @PostMapping("/api/short-link/v1/update")
+    @PostMapping("/api/short-link/v1/link/update")
     public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
         shortLinkService.updateShortLink(requestParam);
         return Results.success();
