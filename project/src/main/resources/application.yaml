@@ -26,6 +26,8 @@ short-link:
   stats:
     locale:
       a-map-key: 824c511f0997586ea016f979fdb23087
+  domain:
+    default: air.com:8001
 
 mybatis-plus:
   configuration:
