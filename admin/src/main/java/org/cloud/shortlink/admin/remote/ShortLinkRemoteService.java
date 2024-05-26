@@ -9,10 +9,7 @@ import org.cloud.shortlink.admin.convention.result.Result;
 import org.cloud.shortlink.admin.dto.req.*;
 import org.cloud.shortlink.admin.dto.resp.ShortLinkStatsAccessRecordRespDTO;
 import org.cloud.shortlink.admin.dto.resp.ShortLinkStatsRespDTO;
-import org.cloud.shortlink.admin.remote.dto.req.ShortLinkBatchCreateReqDTO;
-import org.cloud.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
-import org.cloud.shortlink.admin.remote.dto.req.ShortLinkGroupStatsReqDTO;
-import org.cloud.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import org.cloud.shortlink.admin.remote.dto.req.*;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkBatchCreateRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
@@ -37,9 +34,18 @@ public interface ShortLinkRemoteService {
      * @return 短链接批量创建响应
      */
     default Result<ShortLinkBatchCreateRespDTO> batchCreateShortLink(ShortLinkBatchCreateReqDTO requestParam) {
-        String resultBodyStr = HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/create/batch", JSON.toJSONString(requestParam));
+        String resultBodyStr = HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/link/create/batch", JSON.toJSONString(requestParam));
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {
         });
+    }
+
+    /**
+     * 修改短链接
+     *
+     * @param requestParam 修改短链接请求参数
+     */
+    default void updateShortLink(ShortLinkUpdateReqDTO requestParam) {
+        HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/link/update", JSON.toJSONString(requestParam));
     }
 
     default Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO requestParam) {

@@ -9,6 +9,7 @@ import org.cloud.shortlink.project.convention.result.Results;
 import org.cloud.shortlink.project.dto.req.ShortLinkBatchCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkPageReqDTO;
+import org.cloud.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkBatchCreateRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkGroupCountRespDTO;
@@ -45,6 +46,15 @@ public class ShortLinkController {
     @PostMapping("/api/short-link/v1/create/batch")
     public Result<ShortLinkBatchCreateRespDTO> batchCreateShortLink(@RequestBody ShortLinkBatchCreateReqDTO requestParam) {
         return Results.success(shortLinkService.batchCreateShortLink(requestParam));
+    }
+
+    /**
+     * 修改短链接
+     */
+    @PostMapping("/api/short-link/v1/update")
+    public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
+        shortLinkService.updateShortLink(requestParam);
+        return Results.success();
     }
 
     @GetMapping("/api/short-link/v1/link/page")

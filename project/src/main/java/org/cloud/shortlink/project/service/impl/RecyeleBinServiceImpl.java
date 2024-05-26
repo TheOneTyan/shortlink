@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.cloud.shortlink.project.common.constant.RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY;
 import static org.cloud.shortlink.project.common.constant.RedisKeyConstant.GOTO_SHORT_LINK_KEY;
 
 @Service
@@ -56,7 +57,7 @@ public class RecyeleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
                 .build();
 
         baseMapper.update(shortLinkDO, updateWrapper);
-        // TODO 删除 GOTO_IS_NULL_SHORT_LINK_KEY
+        stringRedisTemplate.delete(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, requestParam.getFullShortUrl()));
         stringRedisTemplate.opsForValue().set(
                 String.format(GOTO_SHORT_LINK_KEY, requestParam.getFullShortUrl()),
                 shortLinkDO.getOriginUrl(),
