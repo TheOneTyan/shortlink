@@ -20,12 +20,11 @@ import lombok.RequiredArgsConstructor;
 import org.cloud.shortlink.project.convention.exception.ServiceException;
 import org.cloud.shortlink.project.dao.entity.*;
 import org.cloud.shortlink.project.dao.mapper.*;
+import org.cloud.shortlink.project.dto.req.ShortLinkBatchCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkPageReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
-import org.cloud.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
-import org.cloud.shortlink.project.dto.resp.ShortLinkGroupCountRespDTO;
-import org.cloud.shortlink.project.dto.resp.ShortLinkPageRespDTO;
+import org.cloud.shortlink.project.dto.resp.*;
 import org.cloud.shortlink.project.service.ShortLinkService;
 import org.cloud.shortlink.project.toolkit.HashUtil;
 import org.cloud.shortlink.project.toolkit.LinkUtil;
@@ -36,7 +35,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
@@ -71,7 +69,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Value("${short-link.domain.default}")
     private String createShortLinkDefaultDomain;
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
     public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
         String shortUri = generateShortUri(requestParam);
@@ -120,6 +117,36 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .gid(requestParam.getGid())
                 .originUrl(requestParam.getOriginUrl())
                 .fullShortUrl(fullShortUrl)
+                .build();
+    }
+
+    @Override
+    public ShortLinkBatchCreateRespDTO batchCreateShortLink(ShortLinkBatchCreateReqDTO requestParam) {
+        List<String> originUrls = requestParam.getOriginUrls();
+        List<String> describes = requestParam.getDescribes();
+        List<ShortLinkBaseInfoRespDTO> result = new ArrayList<>();
+        for (int i = 0; i < originUrls.size(); i++) {
+            ShortLinkCreateReqDTO shortLinkCreateReqDTO = BeanUtil.toBean(requestParam, ShortLinkCreateReqDTO.class);
+            shortLinkCreateReqDTO.setOriginUrl(originUrls.get(i));
+            // describes.size() == originUrls.size()，当描述为空时，取空字符串
+            // describe 是返回Excel表中的“标题”列
+            String describe = i < describes.size() ? describes.get(i) : "";
+            shortLinkCreateReqDTO.setDescribe(describe);
+            try {
+                ShortLinkCreateRespDTO shortLink = createShortLink(shortLinkCreateReqDTO);
+                ShortLinkBaseInfoRespDTO linkBaseInfoRespDTO = ShortLinkBaseInfoRespDTO.builder()
+                        .fullShortUrl(shortLink.getFullShortUrl())
+                        .originUrl(shortLink.getOriginUrl())
+                        .describe(describe)
+                        .build();
+                result.add(linkBaseInfoRespDTO);
+            } catch (Throwable ex) {
+                log.error(String.format("批量创建短链接失败，原始参数：{}", originUrls.get(i)));
+            }
+        }
+        return ShortLinkBatchCreateRespDTO.builder()
+                .total(result.size())
+                .baseLinkInfos(result)
                 .build();
     }
 

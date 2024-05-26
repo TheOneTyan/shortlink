@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.cloud.shortlink.project.dao.entity.ShortLinkDO;
+import org.cloud.shortlink.project.dto.req.ShortLinkBatchCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkPageReqDTO;
 import org.cloud.shortlink.project.dto.req.ShortLinkUpdateReqDTO;
+import org.cloud.shortlink.project.dto.resp.ShortLinkBatchCreateRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkPageRespDTO;
@@ -17,6 +19,14 @@ import java.util.List;
 
 public interface ShortLinkService extends IService<ShortLinkDO> {
     ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam);
+
+    /**
+     * 批量创建短链接
+     *
+     * @param requestParam 批量创建短链接请求参数
+     * @return 批量创建短链接返回参数
+     */
+    ShortLinkBatchCreateRespDTO batchCreateShortLink(ShortLinkBatchCreateReqDTO requestParam);
 
     IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkPageReqDTO requestParam);
 

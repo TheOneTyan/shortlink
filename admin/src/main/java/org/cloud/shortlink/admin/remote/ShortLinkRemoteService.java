@@ -9,9 +9,11 @@ import org.cloud.shortlink.admin.convention.result.Result;
 import org.cloud.shortlink.admin.dto.req.*;
 import org.cloud.shortlink.admin.dto.resp.ShortLinkStatsAccessRecordRespDTO;
 import org.cloud.shortlink.admin.dto.resp.ShortLinkStatsRespDTO;
+import org.cloud.shortlink.admin.remote.dto.req.ShortLinkBatchCreateReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkGroupStatsReqDTO;
 import org.cloud.shortlink.admin.remote.dto.req.ShortLinkPageReqDTO;
+import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkBatchCreateRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkPageRespDTO;
@@ -25,6 +27,19 @@ public interface ShortLinkRemoteService {
     default Result<ShortLinkCreateRespDTO> createShortLink(ShortLinkCreateReqDTO requestParam) {
         String responseJsonStr = HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/link", JSON.toJSONString(requestParam));
         return JSON.parseObject(responseJsonStr, new TypeReference<>() {});
+    }
+
+
+    /**
+     * 批量创建短链接
+     *
+     * @param requestParam 批量创建短链接请求参数
+     * @return 短链接批量创建响应
+     */
+    default Result<ShortLinkBatchCreateRespDTO> batchCreateShortLink(ShortLinkBatchCreateReqDTO requestParam) {
+        String resultBodyStr = HttpUtil.post("http://127.0.0.1:8001/api/short-link/v1/create/batch", JSON.toJSONString(requestParam));
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {
+        });
     }
 
     default Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO requestParam) {
