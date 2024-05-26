@@ -68,11 +68,24 @@ public class RecyeleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
 
     @Override
     public void clearRecycleBin(RecycleBinClearReqDTO requestParam) {
-        LambdaUpdateWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
+        // TODO 试着使用更新？
+        // delTime = 0L，表示没被彻底删除的链接
+//        LambdaUpdateWrapper<ShortLinkDO> queryWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
+//                .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
+//                .eq(ShortLinkDO::getGid, requestParam.getGid())
+//                .eq(ShortLinkDO::getEnableStatus, 1);
+//        baseMapper.delete(queryWrapper);
+        LambdaUpdateWrapper<ShortLinkDO> updateWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
                 .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
                 .eq(ShortLinkDO::getGid, requestParam.getGid())
-                .eq(ShortLinkDO::getEnableStatus, 1);
-        baseMapper.delete(queryWrapper);
+                .eq(ShortLinkDO::getEnableStatus, 1)
+                .eq(ShortLinkDO::getDelTime, 0L)
+                .eq(ShortLinkDO::getDelFlag, 0);
+        ShortLinkDO delShortLinkDO = ShortLinkDO.builder()
+                .delTime(System.currentTimeMillis())
+                .build();
+        delShortLinkDO.setDelFlag(1);
+        baseMapper.update(delShortLinkDO, updateWrapper);
     }
 
     @Override
