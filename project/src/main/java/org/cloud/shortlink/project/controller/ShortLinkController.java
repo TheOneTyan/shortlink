@@ -1,5 +1,6 @@
 package org.cloud.shortlink.project.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +15,7 @@ import org.cloud.shortlink.project.dto.resp.ShortLinkBatchCreateRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkCreateRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkGroupCountRespDTO;
 import org.cloud.shortlink.project.dto.resp.ShortLinkPageRespDTO;
+import org.cloud.shortlink.project.handler.CustomBlockHandler;
 import org.cloud.shortlink.project.service.ShortLinkService;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +38,11 @@ public class ShortLinkController {
      * 创建短链接
      */
     @PostMapping("/api/short-link/v1/link")
+    @SentinelResource(
+            value = "create_short-link",
+            blockHandler = "createShortLinkBlockHandlerMethod",
+            blockHandlerClass = CustomBlockHandler.class
+    )
     public Result<ShortLinkCreateRespDTO> create(@RequestBody ShortLinkCreateReqDTO requestParam){
         return Results.success(shortLinkService.createShortLink(requestParam));
     }
