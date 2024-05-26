@@ -114,7 +114,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         String loginKey = "login_" + requestParam.getUsername();
         Boolean hasLogin = stringRedisTemplate.hasKey(loginKey);
         if (hasLogin != null && hasLogin) {
-            throw new ClientException(USER_HAS_LOGIN);
+            String token = stringRedisTemplate.opsForHash().keys(loginKey).iterator().next().toString();
+            if (token == null) {
+                throw new ClientException("用户登录错误");
+            }
+            return new UserLoginRespDTO(token);
         }
 
         String token = UUID.randomUUID().toString();
