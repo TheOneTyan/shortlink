@@ -425,7 +425,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             // 防止高并发时生成相同短链接并插入
             String originUrlAndUuid = requestParam.getOriginUrl() + UUID.randomUUID();
             shortUri = HashUtil.hashToBase62(originUrlAndUuid);
-            String fullShortUrl = requestParam.getDomain() + "/" + shortUri;
+            String fullShortUrl = createShortLinkDefaultDomain + "/" + shortUri;
             // 布隆过滤器：不存在则一定不存在，此时生成的shortUri满足要求
             if (!shortLinkCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
                 break;
