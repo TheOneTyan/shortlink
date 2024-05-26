@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloud.shortlink.admin.common.biz.user.UserContext;
+import org.cloud.shortlink.admin.convention.exception.ClientException;
 import org.cloud.shortlink.admin.convention.result.Result;
 import org.cloud.shortlink.admin.dao.entity.GroupDO;
 import org.cloud.shortlink.admin.dao.mapper.GroupMapper;
@@ -18,47 +20,60 @@ import org.cloud.shortlink.admin.remote.ShortLinkRemoteService;
 import org.cloud.shortlink.admin.remote.dto.resp.ShortLinkGroupCountRespDTO;
 import org.cloud.shortlink.admin.service.GroupService;
 import org.cloud.shortlink.admin.toolkit.RandomGenerator;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.cloud.shortlink.admin.common.constant.RedisCacheConstant.LOCK_GROUP_CREATE_KEY;
+
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
 
     ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService() {};
+    private final RedissonClient redissonClient;
+
+    @Value("${short-link.group.max-num}")
+    private Integer groupMaxNum;
 
     // 用户登录后创建
     @Override
     public void createGroup(ShortLinkGroupSaveReqDTO requestParam) {
-        String gid;
-        do {
-            gid = RandomGenerator.generateRandom();
-        } while (hasGroupNameUsed(gid, UserContext.getUsername()));
-
-        GroupDO groupDO = GroupDO.builder()
-                .gid(gid)
-                .name(requestParam.getName())
-                .username(UserContext.getUsername())
-                .build();
-        baseMapper.insert(groupDO);
+        createGroup(requestParam.getName(), UserContext.getUsername());
     }
 
     // 用户注册时默认创建
     @Override
     public void createGroup(String groupName, String username) {
-        String gid;
-        do {
-            gid = RandomGenerator.generateRandom();
-        } while (hasGroupNameUsed(gid, username));
+        RLock lock = redissonClient.getLock(LOCK_GROUP_CREATE_KEY);
+        lock.lock();
+        try {
+            LambdaQueryWrapper<GroupDO> queryWrapper = Wrappers.lambdaQuery(GroupDO.class)
+                    .eq(GroupDO::getUsername, username);
+            long count = baseMapper.selectCount(queryWrapper);
+            if (count >= groupMaxNum) {
+                throw new ClientException(String.format("已达到最大分组数：%d", groupMaxNum));
+            }
 
-        GroupDO groupDO = GroupDO.builder()
-                .gid(gid)
-                .name(groupName)
-                .username(username)
-                .build();
-        baseMapper.insert(groupDO);
+            String gid;
+            do {
+                gid = RandomGenerator.generateRandom();
+            } while (hasGroupNameUsed(gid, username));
+
+            GroupDO groupDO = GroupDO.builder()
+                    .gid(gid)
+                    .name(groupName)
+                    .username(username)
+                    .build();
+            baseMapper.insert(groupDO);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
