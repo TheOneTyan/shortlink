@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.cloud.shortlink.admin.common.constant.RedisCacheConstant.LOCK_USER_REGISTER_KEY;
+import static org.cloud.shortlink.admin.common.constant.RedisCacheConstant.USER_LOGIN_KEY;
 import static org.cloud.shortlink.admin.common.enums.UserErrorCodeEnum.*;
 
 @Service
@@ -111,7 +112,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if (userDO == null) {
             throw new ClientException(USER_NULL);
         }
-        String loginKey = "login_" + requestParam.getUsername();
+        String loginKey = USER_LOGIN_KEY + requestParam.getUsername();
         Boolean hasLogin = stringRedisTemplate.hasKey(loginKey);
         if (hasLogin != null && hasLogin) {
             String token = stringRedisTemplate.opsForHash().keys(loginKey).iterator().next().toString();
@@ -136,14 +137,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
      */
     @Override
     public Boolean hasLogged(String username, String token) {
-        String loginKey = "login_" + username;
+        String loginKey = USER_LOGIN_KEY + username;
         return stringRedisTemplate.opsForHash().get(loginKey, token) != null;
     }
 
     @Override
     public void logout(String username, String token) {
         if (hasLogged(username, token)) {
-            String loginKey = "login_" + username;
+            String loginKey = USER_LOGIN_KEY + username;
             stringRedisTemplate.delete(loginKey);
         } else {
             throw new ClientException("用户未登录或登录已过期");
